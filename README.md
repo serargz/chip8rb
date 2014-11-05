@@ -1,6 +1,6 @@
 # Chip8rb
 
-TODO: Write a gem description
+CHIP-8 emultator in Ruby.
 
 ## Installation
 
