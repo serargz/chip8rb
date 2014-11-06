@@ -4,8 +4,6 @@ module Chip8rb
   # http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
   class Emaulator
 
-    attr_accessor :opcode
-
     def initialize
       # Chip-8 has 4k memory (0x100)
       @memory = Array.new(4096)
@@ -54,6 +52,25 @@ module Chip8rb
         # 6. If the draw flag is set, update screen
         # 7. Update key press state (Press and Release)
       end
+    end
+
+  private
+
+    def emulate_cycle
+      opcode = get_opcode
+
+      # Simulate 60Hz
+      sleep(1.0/60.0)
+    end
+
+    # As our memory stores byte by byte, we need to concat
+    # two adjacent bytes to get the opcode.
+    def get_opcode
+      return @memory[@pc] << 8 | @memory[@pc + 1]
+    end
+
+    def check_program_size(program)
+      raise 'Program does not fit in memory' if program.size > 4096 - 0x200
     end
   end
 end
