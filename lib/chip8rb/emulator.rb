@@ -86,11 +86,29 @@ module Chip8rb
 
   private
 
+    # Emulates a processor cycle
     def emulate_cycle
       opcode = get_opcode
+      exec(opcode)
+
+      timers_tick
 
       # Simulate 60Hz
       sleep(1.0/60.0)
+    end
+
+    # Executes an opcode. For a complete opcode list, check:
+    # http://en.wikipedia.org/wiki/CHIP-8#Opcode_table
+    def exec(opcode)
+      case 0xF000 & opcode
+
+      when 0x0000
+        # clear_screen if opcode == 0x00E0
+        # return_from_subroutine if opcode == 0x00EE
+
+      when 0xA000 # ANNN: Sets I to the address NNN
+        # TODO
+      end
     end
 
     # As our memory stores byte by byte, we need to concat
@@ -99,8 +117,18 @@ module Chip8rb
       return @memory[@pc] << 8 | @memory[@pc + 1]
     end
 
+    # Checks whether the program fits in memory or not
     def check_program_size(program)
       raise 'Program does not fit in memory' if program.size > 4096 - 0x200
+    end
+
+    # Decrements timers if are > 0
+    def timers_tick
+      @delay_timer -= 1 if @delay_timer > 0
+      if @sound_timer > 0
+        puts "BEEP!" if @sound_timer == 1
+        @sound_timer -= 1
+      end
     end
   end
 end
