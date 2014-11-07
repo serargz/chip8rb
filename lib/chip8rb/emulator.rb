@@ -213,4 +213,87 @@ module Chip8rb
     @v[x] += kk
     inc_pc
   end
+
+  # 0x8xy0: LD Vx, Vy
+  # Stores de value of register Vy in register Vx
+  def ld_vx_vy(x, y)
+    @v[x] = @v[y]
+    inc_pc
+  end
+
+  # 0x8xy1: OR Vx, Vy
+  # Bitwise OR on Vx and Vy. Stores result in Vx.
+  def or_vx_vy(x, y)
+    @v[x] |= @v[y]
+    inc_pc
+  end
+
+  # 0x8xy2: AND Vx, Vy
+  # Bitwise AND on Vx and Vy. Stores result in Vx.
+  def and_vx_vy(x, y)
+    @v[x] &= @v[y]
+    inc_pc
+  end
+
+  # 0x8xy3: XOR Vx, Vy
+  # Bitwise XOR on Vx and Vy. Stores result in Vx.
+  def xor_vx_vy(x, y)
+    @v[x] ^= @v[y]
+    inc_pc
+  end
+
+  # 0x8xy4: ADD Vx, Vy
+  # Sets Vx = Vx + Vy. If result > 255 VF is set to 1.
+  # Only the lowest 8 bits of the result are kept.
+  def add_vx_vy(x, y)
+    @v[x] += @v[y]
+    @v[0xF] = 0
+
+    if @v[x] > 255
+      @v[0xF] = 1
+      @v[x] &= 0xFF
+    end
+
+    inc_pc
+  end
+
+  # 0x8xy5: SUB Vx, Vy
+  # Sets Vx = Vx - Vy.  if Vx > Vy, VF is set to 1.
+  # Only the lowest 8 bits of the result are kept.
+  def sub_vx_vy(x, y)
+    @v[0xF] = @v[x] > @v[y] ? 1 : 0
+    @v[x] = (@v[x] - @v[y]) & 0xFF
+
+    inc_pc
+  end
+
+  # 0x8xy6: SHR Vx {, Vy}
+  # Sets Vx = Vx >> 1. If the least significant bit of Vx is 1,
+  # VF is set to 1.
+  def shr_vx(x)
+    @v[0xF] = (@v[x] % 2 == 1) ? 1 : 0
+    @v[x] >>= 1
+
+    inc_pc
+  end
+
+  # 0x8xy7: SUBN Vx, Vy
+  # Sets Vx = Vy - Vx.  if Vy > Vx, VF is set to 1.
+  # Only the lowest 8 bits of the result are kept.
+  def subn_vx_vy(x, y)
+    @v[0xF] = @v[y] > @v[x] ? 1 : 0
+    @v[x] = (@v[y] - @v[x]) & 0xFF
+
+    inc_pc
+  end
+
+  # 0x8xyE: SHL Vx {, Vy}
+  # Sets Vx = Vx << 1. If the most significant bit of Vx is 1,
+  # VF is set to 1.
+  def shl_vx(x)
+    @v[0xF] = (@v[x] & 0x80 == 0x80) ? 1 : 0
+    @v[x] <<= 1
+
+    inc_pc
+  end
 end
