@@ -100,9 +100,11 @@ module Chip8rb
     # Executes an opcode. For a complete opcode list, check:
     # http://en.wikipedia.org/wiki/CHIP-8#Opcode_table
     def exec(opcode)
+      # Check the left most byte
       case 0xF000 & opcode
 
       when 0x0000
+        # 0nnn is ignored by modern intepreters/emulators
         # clear_screen if opcode == 0x00E0
         # return_from_subroutine if opcode == 0x00EE
 
@@ -130,5 +132,85 @@ module Chip8rb
         @sound_timer -= 1
       end
     end
+  end
+
+  # Increments instruction pointer
+  # The parameter determines how many instructions (default: 1)
+  def inc_pc(n=1)
+    @pc += n*2
+  end
+
+  # opcode implementations
+  # TODO: Extract to class
+
+  # 0x00E0: Clear Screen
+  def cls
+    @gfx.fill(0)
+  end
+
+  # 0x00EE: Return from a soubroutine
+  # Sets the program counter to the address at the top of the stack,
+  # then subtracts 1 from the stack pointer.
+  def ret
+    @pc = @stack[@sp]
+    @sp -= 1
+  end
+
+  # 0x1nnn: JP addr
+  # Jumps to location nnn. Sets the program counter to nnn
+  def jp_addr(addr)
+    @pc = addr
+  end
+
+  # 0x2nnn: CALL addr
+  # Increments the stack pointer, then puts the current PC on the
+  # top of the stack. The PC is then set to nnn.
+  def call_addr(addr)
+    @sp +=1
+    @stack[@sp] = @pc
+    @pc = addr
+  end
+
+  # 0x3xkk: SE Vx, byte
+  # Skip next instruction if Vx == kk
+  def se_vx_byte(x, kk)
+    # We skip 1 instruction (each instruction consists of 2 bytes)
+    inc_pc(2) && return if @v[x] == kk
+
+    # If not equal, just go to the next instruction
+    inc_pc
+  end
+
+  # 0x4xkk: SNE Vx, byte
+  # Skip next instruction if Vx != kk
+  def sne_vx_byte(x, kk)
+    # We skip 1 instruction (each instruction consists of 2 bytes)
+    inc_pc(2) && return unless @vpx[x] == kk
+    # If equal, just go to the next instruction
+    inc_pc
+  end
+
+  # 0x5xy0: SE Vx, Vy
+  # Skip next instruction if Vx == Vy
+  def se_vx_vy(x, y)
+    # We skip 1 instruction (each instruction consists of 2 bytes)
+    inc_pc(2) && return if @v[x] == @v[y]
+
+    # If not equal, just go to the next instruction
+    inc_pc
+  end
+
+  # 0x6xkk: LD Vx, byte
+  # Loads the value of kk in Vx
+  def ld_vx_byte(x, byte)
+    @v[x] = byte
+    inc_pc
+  end
+
+  # 0x7xkk: ADD Vx, byte
+  # Adds the value of kk to Vx
+  def add_vx_byte(x, kk)
+    @v[x] += kk
+    inc_pc
   end
 end
