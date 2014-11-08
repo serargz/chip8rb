@@ -33,13 +33,13 @@ module Chip8rb
       @sound_timer = 0
 
       # Stack. The system has 16 levels of stack.
-      @stack = Array.new(16)
+      @stack = Array.new(16, 0)
 
       # Stack pointer
       @sp = 0
 
       # HEX based keypad.
-      @key = Array.new(16)
+      @key = Array.new(16, false)
 
       # Set the fontset
       @memory[0...80] = [
@@ -341,5 +341,93 @@ module Chip8rb
         end
       end
     end
+
+    inc_pc
   end
+
+  # 0xE9E: SKP Vx
+  # Skip next instruction if key with the value of Vx is pressed
+  def skp_vx(x)
+    inc_pc(2) && return if @key[@v[x]]
+    inc_pc
+  end
+
+  # 0xEA1: SKNP Vx
+  # Skip next instruction if key with the value of Vx is NOT pressed
+  def skp_vx(x)
+    inc_pc(2) && return unless @key[@v[x]]
+    inc_pc
+  end
+
+  # 0xFx07: LD Vx, DT
+  # Set Vx = delay timer value.
+  def ld_vx_dt(x)
+    @v[x] = @delay_timer
+    inc_pc
+  end
+
+  # 0xFx0A: LD Vx, K
+  # Wait for a key press, store value of the key in Vx.
+  def ld_vx_k(x)
+    # TODO: Input should be handled from other class, in oder to
+    # support raw Ruby and Opal.
+    raise "Not implemented opcode: 0xFx0A - LD Vx, K"
+    inc_pc
+  end
+
+  # 0xFx15: LD DT, Vx
+  # Set delay timer = Vx.
+  def ld_vx_dt(x)
+    @delay_timer = @v[x]
+    inc_pc
+  end
+
+  # 0xFx18: LD ST, Vx
+  # Set sound timer = Vx
+  def ld_st_vx(x)
+    @v[x] = @sound_timer
+    inc_pc
+  end
+
+  # 0xFx1E: ADD I, Vx
+  # Set I += Vx
+  def add_i_vx(x)
+    @i += @v[x]
+    inc_pc
+  end
+
+  # 0xFx29: LD F, Vx
+  # Set I = location of sprite of digit Vx. Digits from 0 to F are
+  # stored in the first 5x16 bytes of memory.
+  def ld_f_vx(x)
+    @i = 5*@v[x]
+    inc_pc
+  end
+
+  # 0xFx33: LD B, Vx
+  # Store BCD representation of Vx in memory locations I, I+1, and I+2.
+  def ld_b_vx(x)
+    n = @v[x]
+    3.times do |i|
+      @memory[@i+2-i] = n % 10
+      n /= 10
+    end
+    inc_pc
+  end
+
+  # 0xFx55: LD [I], Vx
+  # Store registers V0 through Vx from memory starting at location I
+  def ld_i_vx(x)
+    @vx.times do |i|
+      @v[i] = @memory[@i + i]
+    end
+    inc_pc
+  end
+
+  # 0xFx65: LD [I], Vx
+  # Read registers V0 through Vx from memory starting at location I
+  def ld_vx_i(x)
+    # TODO
+  end
+
 end
