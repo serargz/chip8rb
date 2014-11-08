@@ -296,4 +296,50 @@ module Chip8rb
 
     inc_pc
   end
+
+  # 0x9xy0: SNE Vx, Vy
+  # Skip next instruction if Vx != Vy
+  def sne_vx_vy(x, y)
+    inc_pc(2) && return unless @v[x] == @v[y]
+    inc_pc
+  end
+
+  # 0xAnnn: LD I, addr
+  # Set I = nnn
+  def ld_i_addr(addr)
+    @i = addr
+    inc_pc
+  end
+
+  # 0xBnnn: JP V0, addr
+  # Jump to location nnn + V0
+  def jp_v0_addr(addr)
+    @pc = @v[0] + addr
+  end
+
+  # 0xCxkk: RND Vx, byte
+  # Set Vx = random byte AND kk
+  def rnd_vx(x, kk)
+    @v[x] = (rand(256) & kk) & 0xFF
+    inc_pc
+  end
+
+  # 0xDxyn: DRW Vx, Vy, nibble
+  # Display n-byte sprite starting at memory location I at (Vx, Vy),
+  # set VF = collision. The corresponding graphic on the screen will
+  # be eight pixels wide and n pixels high.
+  def drw(x, y, n)
+    @v[0xF] = 0
+    n.times do |i|
+      byte = @memory[@i+i]
+      # From most significant bit to less significant bit
+      8.times do |j|
+        if (byte & (0x80 >> j)) > 0
+          # If current bit is on, set collision
+          @v[0xF] = 1 if @gfx[ (@v[x] + j) + (@v[y] + i)*64 ]
+          @gfx[ (@v[x] + j) + (@v[y] + i)*64 ] ^= 1
+        end
+      end
+    end
+  end
 end
