@@ -416,18 +416,21 @@ module Chip8rb
   end
 
   # 0xFx55: LD [I], Vx
-  # Store registers V0 through Vx from memory starting at location I
+  # Store registers V0 through Vx in memory starting at location I
   def ld_i_vx(x)
     @vx.times do |i|
-      @v[i] = @memory[@i + i]
+      @memory[@i + i] = @v[i]
     end
     inc_pc
   end
 
-  # 0xFx65: LD [I], Vx
+  # 0xFx65: LD Vx, [I]
   # Read registers V0 through Vx from memory starting at location I
   def ld_vx_i(x)
-    # TODO
+    @vx.times do |i|
+      @v[i] = @memory[@i + i]
+    end
+    inc_pc
   end
 
 end
