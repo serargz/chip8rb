@@ -27,7 +27,10 @@ module Chip8rb
       # This is thea actual screen handle
       # TODO: Use a factory to create the
       # screen from config.
-      @screen = TKScreen.new
+      @screen = ShoesScreen.new
+
+      # Input handler
+      @input = InputHandler.new
 
       # Timer registers, count at 60Hz.
       # When set above zero, they will count down to zero.
@@ -377,6 +380,8 @@ module Chip8rb
     # TODO: Input should be handled from other class, in oder to
     # support raw Ruby and Opal.
     raise "Not implemented opcode: 0xFx0A - LD Vx, K"
+
+    ch = @input.getch
     inc_pc
   end
 
