@@ -1,0 +1,6 @@
+#! ruby
+
+require 'chip8rb'
+
+emu = Chip8rb::Emaulator.new
+emu.run
