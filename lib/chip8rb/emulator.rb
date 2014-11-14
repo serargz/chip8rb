@@ -24,10 +24,10 @@ module Chip8rb
       # a total of 2048 (64x32)
       @gfx = Array.new(64*32)
 
-      # This is thea actual screen handle
+      # This is the actual screen handler
       # TODO: Use a factory to create the
       # screen from config.
-      @screen = ShoesScreen.new
+      @screen = GTKScreen.new(64, 32)
 
       # Input handler
       @input = InputHandler.new
