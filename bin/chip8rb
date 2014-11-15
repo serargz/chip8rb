@@ -1,6 +1,6 @@
-#! ruby
+#! /usr/bin/env ruby
 
 require 'chip8rb'
 
-emu = Chip8rb::Emaulator.new
+emu = Chip8rb::Emulator.new
 emu.run
