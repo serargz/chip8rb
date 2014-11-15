@@ -2,7 +2,7 @@ module Chip8rb
 
   # This CHIP-8 emulator is based on the instructions given in:
   # http://www.multigesture.net/articles/how-to-write-an-emulator-chip-8-interpreter/
-  class Emaulator
+  class Emulator
 
     def initialize
       # Chip-8 has 4k memory (0x100)

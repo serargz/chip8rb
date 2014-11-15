@@ -1,1 +1,4 @@
-require File.expand_path("../../lib/chip8rb", __FILE__)
+$TESTING = true
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), "..", "lib"))
+
+require 'chip8rb'
