@@ -16,19 +16,22 @@ class GTKScreen < Screen
     # Draw the initial screen and capture keyboard events
     @window = Gtk::Window.new
 
-    area = Gtk::DrawingArea.new
-    area.set_size_request(@width*@tile_size, @height*@tile_size)
-    area.signal_connect("expose_event") do
-      alloc = area.allocation
-      area.window.draw_arc(area.style.fg_gc(area.state), true, 0, 0, alloc.width, alloc.height, 0, 64 * 360)
+    @area = Gtk::DrawingArea.new
+    @area.set_size_request(@width*@tile_size, @height*@tile_size)
+
+    @area.signal_connect("expose_event") do
+      alloc = @area.allocation
+      @area.window.draw_arc(@area.style.fg_gc(@area.state), true, 0, 0, alloc.width, alloc.height, 0, 90)
     end
 
-    @window.add(area)
+    @window.add(@area)
     @window.show
     @window.set_default_size(@width*@tile_size, @height*@tile_size).show_all
     @window.signal_connect "destroy" do
       Gtk.main_quit
     end
+
+    @area.window.draw_rectangle(@area.style.fg_gc(@area.state), true, 10, 0, 10, 10)
 
     Gtk.main
   end
